@@ -1,0 +1,2 @@
+﻿projectPath : D:\Jenkins\workspace\DS_AAB
+editorPath : C:\Program Files\Unity\Hub\Editor\2021.3.11f1\Editor
