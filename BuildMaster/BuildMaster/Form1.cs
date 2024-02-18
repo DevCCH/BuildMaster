@@ -14,14 +14,20 @@ namespace BuildMaster
 {
     public partial class Form1 : Form
     {
-        string projectPath = "";
-        string editorPath = "";
+        public List<ProjectInfo> projectInfoList = new List<ProjectInfo>();
 
-        string lastClientVersion = "";
-        string lastTableVersion = "";
-        string lastServerSlot = "";
+        ProjectInfo curProjectInfo;
 
-        string clientVersion = "";
+        public class ProjectInfo
+        {
+            public string projectName = "";
+
+            public string lastClientVersion = "";
+            public string lastTableVersion = "";
+            public string lastServerSlot = "";
+
+            public string clientVersion = "";
+        }
 
         const string checkInput = "ClientVersion, ServerSlot, TableVersion 입력을 확인해 주십시오.";
         const string checkUnityInstance = "Multiple Unity instances cannot open the same project.";
@@ -30,31 +36,64 @@ namespace BuildMaster
         public static string jFrameworkConfigPath = @"\Assets\JFrameworkData\Resources\JFrameworkConfig.asset";
         public static string projectSettingPath = @"\ProjectSettings\ProjectSettings.asset";
 
+        public static string runtimeConfigFilePath = "runtimeConfig.txt";
+        public static string lastBuildInfoTextFileName = "lastBuildInfo.txt";
+
+        public string ConfigPath => $"{GetBMProjectPath(curProjectInfo.projectName)}/config.txt";
+
+        public enum ConfigType
+        {
+            ProjectName,
+            ProjectPath,
+            EditorPath,
+            AOSBuildMethod,
+            IOSBuildMethod
+        }
+
+        public string GetConfigString(ConfigType configType)
+        {
+            var __configPath = ConfigPath;
+
+            var __lineList = File.ReadLines(__configPath).ToList();
+            return __lineList[(int)configType];
+        }
+
+        public string ProjectName => GetConfigString(ConfigType.ProjectName);
+        public string ProjectPath => GetConfigString(ConfigType.ProjectPath);
+        public string EditorPath => GetConfigString(ConfigType.EditorPath);
+        public string AOSBuildMethod => GetConfigString(ConfigType.AOSBuildMethod);
+        public string IOSBuildMethod => GetConfigString(ConfigType.IOSBuildMethod);
+
+        public string GetBMProjectPath(string projectName)
+        {
+            return $"./Projects/{projectName}";
+        }
+
         public Form1()
         {
             InitializeComponent();
-            if (File.Exists("lastBuildInfo.txt"))
-            {
-                var __infoLines = File.ReadLines("lastBuildInfo.txt").ToList();
-                if (__infoLines.Count >= 3)
-                {
-                    lastClientVersion = __infoLines[0];
-                    lastServerSlot = __infoLines[1];
-                    lastTableVersion = __infoLines[2];
 
-                    clientVersionInputField.Text = lastClientVersion;
-                    serverSlotInputField.Text = lastServerSlot;
-                    tableVersionInputField.Text = lastTableVersion;
-                }
+            curProjectInfo = default(ProjectInfo);
+
+            if (File.Exists(runtimeConfigFilePath))
+            {
+                var __configStrList = File.ReadLines(runtimeConfigFilePath).ToList();
+                SetCurProjectInfo(__configStrList[0], true);
+            }
+            else
+            {
+                curProjectInfo = new ProjectInfo();
             }
 
-            var __isSuccess = SetPath();
-            if(__isSuccess == false)
+            var __isSuccess = HasValidProject();
+            if (__isSuccess == false)
             {
-                var __settingForm = new PathSettingForm();
+                var __settingForm = new ProjectSettingForm();
                 __settingForm.ShowDialog();
-                SetPath();
+                curProjectInfo.projectName = __settingForm.resultProjectName;
             }
+
+            SetProjectComboBox();
         }
 
         void CurStatusTextUpdate(string p_Msg)
@@ -63,22 +102,14 @@ namespace BuildMaster
             curStatusText.Update();
         }
 
-        bool SetPath()
+        bool HasValidProject()
         {
-            var __lines = File.ReadLines("config.txt").ToList();
-            if (__lines.Count < 2)
-                return false;
-            
-            var __prjPath = __lines[0];
-            var __editorPath = __lines[1];
-
-            if (__prjPath.Length <= 14 || __editorPath.Length <= 13)
+            var __configPath = ConfigPath;
+            if (!File.Exists(__configPath))
                 return false;
 
-            projectPath = __lines[0].Substring(14);
-            editorPath = __lines[1].Substring(13);
-
-            if (projectPath.Length == 0 || editorPath.Length == 0)
+            var __lines = File.ReadLines(__configPath).ToList();
+            if (__lines.Count < 5)
                 return false;
 
             return true;
@@ -89,8 +120,9 @@ namespace BuildMaster
             CurStatusTextUpdate("SVN diff..");
 
             // 잘 바뀌었는지 비교
-            var __workingDir = projectPath;
-            var __executeCommand = $"svn diff {projectPath}{p_FilePath}";
+            var __projectPath = ProjectPath;
+            var __workingDir = __projectPath;
+            var __executeCommand = $"svn diff {__projectPath}{p_FilePath}";
             var __resultStr = ExecuteCommand(__workingDir, __executeCommand);
             MessageBox.Show(__resultStr);
 
@@ -208,12 +240,12 @@ namespace BuildMaster
 
         private void jenkinsAosButton_Click(object sender, EventArgs e)
         {
-            Process.Start("http://192.168.50.85:9090/");
+            Process.Start("http://121.131.71.175:9090/");
         }
 
         private void jenkinsIosButton_Click(object sender, EventArgs e)
         {
-            Process.Start("http://192.168.50.183:8080/");
+            Process.Start("http://121.131.71.175:8080/");
         }
 
         bool ClientVersionUp(string p_DoneMsg = "")
@@ -226,24 +258,26 @@ namespace BuildMaster
 
             CurStatusTextUpdate("Set client version up..");
 
-            clientVersion = clientVersionInputField.Text;
+            curProjectInfo.clientVersion = clientVersionInputField.Text;
 
             curStatusText.Update();
 
             var __serverSlotStr = serverSlotInputField.Text;
+
+            var __projectPath = ProjectPath;
 
             // 클라이언트 및 번들 버전, 서버슬롯 변경
             var __executeCommand = $"Unity.exe " +
                 $"-quit " +
                 $"-batchmode " +
                 $"-buildTarget Android " +
-                $"-logFile {projectPath}{@"\Yong_Unity\Build\Log.txt"} " +
-                $"-projectPath {projectPath} " +
+                $"-logFile {__projectPath}{@"\BuildLog.txt"} " +
+                $"-projectPath {__projectPath} " +
                 $"-executeMethod BatchModeUtil.SetClientVersion " +
-                $"-clientVersion {clientVersion} " +
+                $"-clientVersion {curProjectInfo.clientVersion} " +
                 $"-serverSlot {__serverSlotStr}";
 
-            var __workingDir = editorPath;
+            var __workingDir = EditorPath;
 
             var __resultStr = ExecuteCommand(__workingDir, __executeCommand, p_DoneMsg);
 
@@ -263,7 +297,7 @@ namespace BuildMaster
             CurStatusTextUpdate("SVN update..");
 
             // 업데이트
-            var __workingDir = projectPath;
+            var __workingDir = ProjectPath;
             var __executeCommand = "svn update";
 
             ExecuteCommand(__workingDir, __executeCommand, p_DoneMsg);
@@ -283,7 +317,7 @@ namespace BuildMaster
             __diffCheck.mainForm = this;
             __diffCheck.ShowDialog();
 
-            if(__diffCheck.isConfirm == false)
+            if (__diffCheck.isConfirm == false)
             {
                 MessageBox.Show("커밋이 취소되었습니다.");
                 return false;
@@ -296,13 +330,14 @@ namespace BuildMaster
             var __tableVersionStr = tableVersionInputField.Text;
             var __serverSlot = Convert.ToInt32(__serverSlotStr);
 
-            var __commitMsg = $"\"DS Client {__clientVersionStr} {__tableVersionStr} s{__serverSlot}\"";
+            var __commitMsg = $"\"{curProjectInfo.projectName} Client {__clientVersionStr} {__tableVersionStr} s{__serverSlot}\"";
 
             // 커밋
-            var __workingDir = projectPath;
+            var __projectPath = ProjectPath;
+            var __workingDir = __projectPath;
             var __executeCommand = $"svn commit " +
-                               $"{projectPath}{@"\ProjectSettings\ProjectSettings.asset"} " +
-                               $"{projectPath}{@"\Assets\JFrameworkData\Resources\JFrameworkConfig.asset"} -m " + __commitMsg;
+                               $"{__projectPath}{@"\ProjectSettings\ProjectSettings.asset"} " +
+                               $"{__projectPath}{@"\Assets\JFrameworkData\Resources\JFrameworkConfig.asset"} -m " + __commitMsg;
 
             var __resultStr = ExecuteCommand(__workingDir, __executeCommand, p_DoneMsg);
 
@@ -321,7 +356,7 @@ namespace BuildMaster
             __strs[0] = __lastClientVersion;
             __strs[1] = __lastServerSlot;
             __strs[2] = __lastTableVersion;
-            File.WriteAllLines("lastBuildInfo.txt", __strs, Encoding.UTF8);
+            File.WriteAllLines($"{GetBMProjectPath(curProjectInfo.projectName)}/{lastBuildInfoTextFileName}", __strs, Encoding.UTF8);
 
             MessageBox.Show(__resultStr);
 
@@ -335,14 +370,13 @@ namespace BuildMaster
 
         private void ShowPathButton_Click(object sender, EventArgs e)
         {
-            Process.Start("config.txt");
+            Process.Start($"{AppDomain.CurrentDomain.BaseDirectory}/Projects/{curProjectInfo.projectName}/config.txt");
         }
 
         private void EditPathButton_Click(object sender, EventArgs e)
         {
-            var __settingForm = new PathSettingForm();
+            var __settingForm = new ProjectSettingForm();
             __settingForm.ShowDialog();
-            SetPath();
         }
 
         private void AndroidBuildButton_Click(object sender, EventArgs e)
@@ -358,7 +392,10 @@ namespace BuildMaster
         void BuildIOS()
         {
             var __workingDir = @"C:\";
-            var __command = @"curl -X post http://novacore:11600e9374411596ce798672372d919152@121.131.71.175:8080/job/DS_Release/build?token=IOSBuildQA";
+
+            var __buildCommandFormatStr = "curl -X post {0}";
+
+            var __command = string.Format(__buildCommandFormatStr, IOSBuildMethod);
 
             ExecuteCommand(__workingDir, __command);
         }
@@ -367,11 +404,87 @@ namespace BuildMaster
         {
             var __workingDir = @"C:\";
 
-            clientVersion = clientVersionInputField.Text;
+            curProjectInfo.clientVersion = clientVersionInputField.Text;
 
-            var __command = $"curl -X post {@"http://novacore:119d76aaa8418a560da82377b2936ef0c1@121.131.71.175:9090/job/DS_AAB/buildWithParameters?token=DS_AAB"} -F clientVersion={clientVersion}";
+            var __buildCommandFormatStr = "curl -X post {0} -F clientVersion={1}";
+
+            var __command = string.Format(__buildCommandFormatStr, AOSBuildMethod, curProjectInfo.clientVersion);
 
             ExecuteCommand(__workingDir, __command);
+        }
+
+        private void comboBox1_SelectedIndexChanged_1(object sender, EventArgs e)
+        {
+            curProjectInfo.projectName = comboBox1.Text;
+            SetCurProjectInfo(curProjectInfo.projectName, false);
+        }
+
+        void SetCurProjectInfo(string projectName, bool setComboBox)
+        {
+            curProjectInfo = new ProjectInfo();
+
+            curProjectInfo.projectName = projectName;
+            var __lastBuildInfoPath = $"{GetBMProjectPath(projectName)}/{lastBuildInfoTextFileName}";
+
+            if (File.Exists(__lastBuildInfoPath))
+            {
+                var __infoLines = File.ReadLines(__lastBuildInfoPath).ToList();
+                if (__infoLines.Count >= 3)
+                {
+                    curProjectInfo.lastClientVersion = __infoLines[0];
+                    curProjectInfo.lastServerSlot = __infoLines[1];
+                    curProjectInfo.lastTableVersion = __infoLines[2];
+                }
+                else
+                {
+                    curProjectInfo.lastClientVersion = string.Empty;
+                    curProjectInfo.lastServerSlot = string.Empty;
+                    curProjectInfo.lastTableVersion = string.Empty;
+                }
+
+                clientVersionInputField.Text = curProjectInfo.lastClientVersion;
+                serverSlotInputField.Text = curProjectInfo.lastServerSlot;
+                tableVersionInputField.Text = curProjectInfo.lastTableVersion;
+            }
+
+            if (File.Exists(runtimeConfigFilePath))
+            {
+                var __strs = new string[1];
+                __strs[0] = projectName;
+                File.WriteAllLines(runtimeConfigFilePath, __strs, Encoding.UTF8);
+            }
+
+            if (setComboBox)
+            {
+                SetProjectComboBox();
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            var __form = new ProjectSettingForm();
+            __form.ShowDialog();
+
+            var __newProjectName = __form.resultProjectName;
+            SetCurProjectInfo(__newProjectName, true);
+        }
+
+        void SetProjectComboBox()
+        {
+            comboBox1.Items.Clear();
+            var __directories = Directory.GetDirectories("Projects");
+            for (int i = 0; i < __directories.Length; i++)
+            {
+                var __directory = __directories[i];
+                var __directoryName = __directory.Substring(9, __directory.Length - 9);
+                comboBox1.Items.Add(__directoryName);
+
+                if (curProjectInfo.projectName == __directoryName)
+                {
+                    comboBox1.SelectedIndex = i;
+                    comboBox1.Text = curProjectInfo.projectName;
+                }
+            }
         }
     }
 }

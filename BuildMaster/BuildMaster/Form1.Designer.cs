@@ -55,6 +55,9 @@
             this.label4 = new System.Windows.Forms.Label();
             this.AndroidBuildButton = new System.Windows.Forms.Button();
             this.buildIosButton = new System.Windows.Forms.Button();
+            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.button2 = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -281,7 +284,7 @@
             // 
             this.label4.AutoSize = true;
             this.label4.BackColor = System.Drawing.Color.Coral;
-            this.label4.Location = new System.Drawing.Point(12, 39);
+            this.label4.Location = new System.Drawing.Point(12, 49);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(429, 12);
             this.label4.TabIndex = 31;
@@ -309,11 +312,42 @@
             this.buildIosButton.UseVisualStyleBackColor = true;
             this.buildIosButton.Click += new System.EventHandler(this.BuildIosButton_Click);
             // 
+            // comboBox1
+            // 
+            this.comboBox1.FormattingEnabled = true;
+            this.comboBox1.Location = new System.Drawing.Point(106, 9);
+            this.comboBox1.Name = "comboBox1";
+            this.comboBox1.Size = new System.Drawing.Size(121, 20);
+            this.comboBox1.TabIndex = 34;
+            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged_1);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(7, 12);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(93, 12);
+            this.label6.TabIndex = 35;
+            this.label6.Text = "현재 프로젝트 : ";
+            // 
+            // button2
+            // 
+            this.button2.Location = new System.Drawing.Point(261, 7);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(99, 23);
+            this.button2.TabIndex = 36;
+            this.button2.Text = "프로젝트 추가";
+            this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(456, 587);
+            this.Controls.Add(this.button2);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.buildIosButton);
             this.Controls.Add(this.AndroidBuildButton);
             this.Controls.Add(this.label4);
@@ -376,6 +410,9 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Button AndroidBuildButton;
         private System.Windows.Forms.Button buildIosButton;
+        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Button button2;
     }
 }
 

@@ -1,2 +1,0 @@
-﻿projectPath : C:\Users\jskim\Documents\svn\novacoreSVN\Yong\Yong_Unity
-editorPath : C:\Program Files\Unity\Hub\Editor\2021.3.11f1\Editor
