@@ -93,6 +93,8 @@ namespace BuildMaster
                 curProjectInfo.projectName = __settingForm.resultProjectName;
             }
 
+            useCommitCheckBox.Checked = true;
+
             SetProjectComboBox();
         }
 
@@ -117,6 +119,9 @@ namespace BuildMaster
 
         public void SVNDiff(string p_FilePath)
         {
+            if (!useCommitCheckBox.Checked)
+                return;
+
             CurStatusTextUpdate("SVN diff..");
 
             // 잘 바뀌었는지 비교
@@ -307,6 +312,9 @@ namespace BuildMaster
 
         bool SVNCommit(string p_DoneMsg = "")
         {
+            if (!useCommitCheckBox.Checked)
+                return true;
+
             if (InputCheck() == false)
             {
                 MessageBox.Show(checkInput);

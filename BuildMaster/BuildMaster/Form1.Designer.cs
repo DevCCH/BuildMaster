@@ -58,6 +58,7 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.button2 = new System.Windows.Forms.Button();
+            this.useCommitCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // label1
@@ -340,11 +341,22 @@
             this.button2.UseVisualStyleBackColor = true;
             this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
+            // useCommitCheckBox
+            // 
+            this.useCommitCheckBox.AutoSize = true;
+            this.useCommitCheckBox.Location = new System.Drawing.Point(211, 261);
+            this.useCommitCheckBox.Name = "useCommitCheckBox";
+            this.useCommitCheckBox.Size = new System.Drawing.Size(76, 16);
+            this.useCommitCheckBox.TabIndex = 37;
+            this.useCommitCheckBox.Text = "커밋 여부";
+            this.useCommitCheckBox.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(456, 587);
+            this.Controls.Add(this.useCommitCheckBox);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.comboBox1);
@@ -413,6 +425,7 @@
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Button button2;
+        private System.Windows.Forms.CheckBox useCommitCheckBox;
     }
 }
 
