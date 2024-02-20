@@ -23,16 +23,18 @@ namespace BuildMaster
         private void OnConfirmButtonClicked(object sender, EventArgs e)
         {
             var __prjName = textBox1.Text;
-            var __prjPath = "projectPath : " + prjPathInputField.Text;
-            var __editorPath = "editorPath : " + editorPathInputField.Text;
+            var __prjPath = prjPathInputField.Text;
+            var __editorPath = editorPathInputField.Text;
+            var __aosBuildCommandFormatStr = aosBuildCommandFormatInputField.Text;
             var __aosBuildMethod = aosBuildMethodInputField.Text;
             var __iosBuildMethod = iosBuildMethodInputField.Text;
             var __strs = new string[5];
             __strs[0] = __prjName;
             __strs[1] = __prjPath;
             __strs[2] = __editorPath;
-            __strs[3] = __aosBuildMethod;
-            __strs[4] = __iosBuildMethod;
+            __strs[3] = __aosBuildCommandFormatStr;
+            __strs[4] = __aosBuildMethod;
+            __strs[5] = __iosBuildMethod;
 
             var __dirPath = $"./Projects/{textBox1.Text}";
             Directory.CreateDirectory(__dirPath);

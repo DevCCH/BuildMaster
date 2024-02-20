@@ -40,6 +40,8 @@
             this.aosBuildMethodInputField = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
             this.iosBuildMethodInputField = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.aosBuildCommandFormatInputField = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // label1
@@ -76,7 +78,7 @@
             // 
             // confirmButton
             // 
-            this.confirmButton.Location = new System.Drawing.Point(99, 225);
+            this.confirmButton.Location = new System.Drawing.Point(100, 282);
             this.confirmButton.Name = "confirmButton";
             this.confirmButton.Size = new System.Drawing.Size(75, 23);
             this.confirmButton.TabIndex = 4;
@@ -86,7 +88,7 @@
             // 
             // cancelButton
             // 
-            this.cancelButton.Location = new System.Drawing.Point(224, 225);
+            this.cancelButton.Location = new System.Drawing.Point(225, 282);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(75, 23);
             this.cancelButton.TabIndex = 5;
@@ -113,40 +115,58 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(2, 149);
+            this.label4.Location = new System.Drawing.Point(2, 182);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(94, 12);
             this.label4.TabIndex = 8;
             this.label4.Text = "AOS빌드 메소드";
             // 
-            // textBox2
+            // aosBuildMethodInputField
             // 
-            this.aosBuildMethodInputField.Location = new System.Drawing.Point(117, 146);
-            this.aosBuildMethodInputField.Name = "textBox2";
+            this.aosBuildMethodInputField.Location = new System.Drawing.Point(117, 179);
+            this.aosBuildMethodInputField.Name = "aosBuildMethodInputField";
             this.aosBuildMethodInputField.Size = new System.Drawing.Size(262, 21);
             this.aosBuildMethodInputField.TabIndex = 9;
             // 
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(2, 185);
+            this.label5.Location = new System.Drawing.Point(2, 218);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(89, 12);
             this.label5.TabIndex = 10;
             this.label5.Text = "IOS빌드 메소드";
             // 
-            // textBox3
+            // iosBuildMethodInputField
             // 
-            this.iosBuildMethodInputField.Location = new System.Drawing.Point(117, 182);
-            this.iosBuildMethodInputField.Name = "textBox3";
+            this.iosBuildMethodInputField.Location = new System.Drawing.Point(117, 215);
+            this.iosBuildMethodInputField.Name = "iosBuildMethodInputField";
             this.iosBuildMethodInputField.Size = new System.Drawing.Size(262, 21);
             this.iosBuildMethodInputField.TabIndex = 11;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(2, 147);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(114, 12);
+            this.label6.TabIndex = 12;
+            this.label6.Text = "AOS빌드명령어포맷";
+            // 
+            // aosBuildCommandFormatInputField
+            // 
+            this.aosBuildCommandFormatInputField.Location = new System.Drawing.Point(117, 144);
+            this.aosBuildCommandFormatInputField.Name = "aosBuildCommandFormatInputField";
+            this.aosBuildCommandFormatInputField.Size = new System.Drawing.Size(262, 21);
+            this.aosBuildCommandFormatInputField.TabIndex = 13;
             // 
             // ProjectSettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(387, 260);
+            this.ClientSize = new System.Drawing.Size(387, 341);
+            this.Controls.Add(this.aosBuildCommandFormatInputField);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.iosBuildMethodInputField);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.aosBuildMethodInputField);
@@ -179,5 +199,7 @@
         private System.Windows.Forms.TextBox aosBuildMethodInputField;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox iosBuildMethodInputField;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox aosBuildCommandFormatInputField;
     }
 }

@@ -46,6 +46,7 @@ namespace BuildMaster
             ProjectName,
             ProjectPath,
             EditorPath,
+            AOSBuildCommandFormatStr,
             AOSBuildMethod,
             IOSBuildMethod
         }
@@ -61,6 +62,7 @@ namespace BuildMaster
         public string ProjectName => GetConfigString(ConfigType.ProjectName);
         public string ProjectPath => GetConfigString(ConfigType.ProjectPath);
         public string EditorPath => GetConfigString(ConfigType.EditorPath);
+        public string AOSBuildCommandFormatStr => GetConfigString(ConfigType.AOSBuildCommandFormatStr);
         public string AOSBuildMethod => GetConfigString(ConfigType.AOSBuildMethod);
         public string IOSBuildMethod => GetConfigString(ConfigType.IOSBuildMethod);
 
@@ -111,7 +113,7 @@ namespace BuildMaster
                 return false;
 
             var __lines = File.ReadLines(__configPath).ToList();
-            if (__lines.Count < 5)
+            if (__lines.Count < 6)
                 return false;
 
             return true;
@@ -312,50 +314,53 @@ namespace BuildMaster
 
         bool SVNCommit(string p_DoneMsg = "")
         {
-            if (!useCommitCheckBox.Checked)
-                return true;
-
+           
             if (InputCheck() == false)
             {
                 MessageBox.Show(checkInput);
                 return false;
             }
 
-            var __diffCheck = new DiffCheck();
-            __diffCheck.mainForm = this;
-            __diffCheck.ShowDialog();
-
-            if (__diffCheck.isConfirm == false)
+            if (useCommitCheckBox.Checked)
             {
-                MessageBox.Show("커밋이 취소되었습니다.");
-                return false;
+                var __diffCheck = new DiffCheck();
+                __diffCheck.mainForm = this;
+                __diffCheck.ShowDialog();
+
+                if (__diffCheck.isConfirm == false)
+                {
+                    MessageBox.Show("커밋이 취소되었습니다.");
+                    return false;
+                }
+
+                CurStatusTextUpdate("SVN commit..");
+
+                var __clientVersionStr = clientVersionInputField.Text;
+                var __serverSlotStr = serverSlotInputField.Text;
+                var __tableVersionStr = tableVersionInputField.Text;
+                var __serverSlot = Convert.ToInt32(__serverSlotStr);
+
+                var __commitMsg = $"\"{curProjectInfo.projectName} Client {__clientVersionStr} {__tableVersionStr} s{__serverSlot}\"";
+
+                // 커밋
+                var __projectPath = ProjectPath;
+                var __workingDir = __projectPath;
+                var __executeCommand = $"svn commit " +
+                                   $"{__projectPath}{@"\ProjectSettings\ProjectSettings.asset"} " +
+                                   $"{__projectPath}{@"\Assets\JFrameworkData\Resources\JFrameworkConfig.asset"} -m " + __commitMsg;
+
+                var __resultStr = ExecuteCommand(__workingDir, __executeCommand, p_DoneMsg);
+
+                if (__resultStr.Contains("커밋된 리비전") == false)
+                {
+                    CurStatusTextUpdate("Commit Failed!");
+                    return false;
+                }
+
+                CurStatusTextUpdate("Commit Done!");
+
+                MessageBox.Show(__resultStr);
             }
-
-            CurStatusTextUpdate("SVN commit..");
-
-            var __clientVersionStr = clientVersionInputField.Text;
-            var __serverSlotStr = serverSlotInputField.Text;
-            var __tableVersionStr = tableVersionInputField.Text;
-            var __serverSlot = Convert.ToInt32(__serverSlotStr);
-
-            var __commitMsg = $"\"{curProjectInfo.projectName} Client {__clientVersionStr} {__tableVersionStr} s{__serverSlot}\"";
-
-            // 커밋
-            var __projectPath = ProjectPath;
-            var __workingDir = __projectPath;
-            var __executeCommand = $"svn commit " +
-                               $"{__projectPath}{@"\ProjectSettings\ProjectSettings.asset"} " +
-                               $"{__projectPath}{@"\Assets\JFrameworkData\Resources\JFrameworkConfig.asset"} -m " + __commitMsg;
-
-            var __resultStr = ExecuteCommand(__workingDir, __executeCommand, p_DoneMsg);
-
-            if (__resultStr.Contains("커밋된 리비전") == false)
-            {
-                CurStatusTextUpdate("Commit Failed!");
-                return false;
-            }
-
-            CurStatusTextUpdate("Commit Done!");
 
             var __lastClientVersion = clientVersionInputField.Text;
             var __lastServerSlot = serverSlotInputField.Text;
@@ -365,8 +370,6 @@ namespace BuildMaster
             __strs[1] = __lastServerSlot;
             __strs[2] = __lastTableVersion;
             File.WriteAllLines($"{GetBMProjectPath(curProjectInfo.projectName)}/{lastBuildInfoTextFileName}", __strs, Encoding.UTF8);
-
-            MessageBox.Show(__resultStr);
 
             return true;
         }
@@ -414,7 +417,7 @@ namespace BuildMaster
 
             curProjectInfo.clientVersion = clientVersionInputField.Text;
 
-            var __buildCommandFormatStr = "curl -X post {0} -F clientVersion={1}";
+            var __buildCommandFormatStr = AOSBuildCommandFormatStr;
 
             var __command = string.Format(__buildCommandFormatStr, AOSBuildMethod, curProjectInfo.clientVersion);
 
@@ -449,6 +452,16 @@ namespace BuildMaster
                     curProjectInfo.lastServerSlot = string.Empty;
                     curProjectInfo.lastTableVersion = string.Empty;
                 }
+
+                clientVersionInputField.Text = curProjectInfo.lastClientVersion;
+                serverSlotInputField.Text = curProjectInfo.lastServerSlot;
+                tableVersionInputField.Text = curProjectInfo.lastTableVersion;
+            }
+            else
+            {
+                curProjectInfo.lastClientVersion = string.Empty;
+                curProjectInfo.lastServerSlot = string.Empty;
+                curProjectInfo.lastTableVersion = string.Empty;
 
                 clientVersionInputField.Text = curProjectInfo.lastClientVersion;
                 serverSlotInputField.Text = curProjectInfo.lastServerSlot;
